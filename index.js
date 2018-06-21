@@ -2,29 +2,38 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const url = require('url')
-const axios = require('axios')
 const app = express()
 const port = process.env.PORT || 3000
+const request = require('request')
+const ipifyUrl = 'https://api.ipify.org?format=json'
+
+
+const getOptions = (withProxy) => ({
+  proxy: withProxy ? process.env.QUOTAGUARDSTATIC_URL : undefined,
+  url: ipifyUrl,
+  headers: {
+      'User-Agent': 'node.js'
+  }
+})
 
 app.use(bodyParser.json())
 
-const ipifyUrl = 'https://api.ipify.org?format=json'
-const quotaGuardUrl = url.parse(process.env.QUOTAGUARDSTATIC_URL)
-const getServerIp = () =>
-  axios.get(ipifyUrl, {
-    proxy: { host: quotaGuardUrl.host, port: quotaGuardUr.port }
-  })
-
-app.get('/', (req, res) => getServerIp()
-  .then(result => res.status(200).json(result))
-  .catch(err => res.status(200).json({ err })))
-
-app.get('/test', (req, res) =>
+app.get('/', (req, res) =>
   res.status(200).json({ message: 'The app works' }))
 
-app.get('/not-static', (req, res) => axios.get(ipifyUrl)
-  .then(result => res.status(200).json(result))
-  .catch(err => res.status(200).json(err)))
+app.get('/not-static', (req, res) => {
+  request(getOptions(false), (err, response, body) => res.status(200).json({
+    code: response.statusCode,
+    body,
+  }))
+})
+
+app.get('/static', (req, res) => {
+  request(getOptions(true), (err, response, body) => res.status(200).json({
+    code: response.statusCode,
+    body,
+  }))
+})
 
 app.listen(port, () => {
   console.log(`Listening on ${port}...`)
