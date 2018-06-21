@@ -15,13 +15,16 @@ const getServerIp = () =>
     proxy: { host: quotaGuardUrl.host, port: quotaGuardUr.port }
   })
 
-
 app.get('/', (req, res) => getServerIp()
   .then(result => res.status(200).json(result))
   .catch(err => res.status(200).json({ err })))
 
 app.get('/test', (req, res) =>
   res.status(200).json({ message: 'The app works' }))
+
+app.get('/not-static', (req, res) => axios.get(ipifyUrl)
+  .then(result => res.status(200).json(result))
+  .catch(err => res.status(200).json(err)))
 
 app.listen(port, () => {
   console.log(`Listening on ${port}...`)
