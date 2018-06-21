@@ -19,7 +19,10 @@ const getServerIp = () =>
 
 app.get('/', (req, res) => getServerIp()
   .then(({ip}) => res.status(200).json({ serverIp: ip }))
-  .catch(err => res.status(500).json({ err })))
+  .catch(err => res.status(200).json({ err })))
+
+app.get('/test', (req, res) =>
+  res.status(200).json({ message: 'The app works' }))
 
 app.listen(port, () => {
   console.log(`Listening on ${port}...`)
