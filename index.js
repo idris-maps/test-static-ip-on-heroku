@@ -14,11 +14,10 @@ const getServerIp = () =>
   axios.get(ipifyUrl, {
     proxy: { host: quotaGuardUrl.host, port: quotaGuardUr.port }
   })
-    .then(res => res.data)
 
 
 app.get('/', (req, res) => getServerIp()
-  .then(({ip}) => res.status(200).json({ serverIp: ip }))
+  .then(result => res.status(200).json(result))
   .catch(err => res.status(200).json({ err })))
 
 app.get('/test', (req, res) =>
